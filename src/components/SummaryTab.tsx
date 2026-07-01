@@ -17,7 +17,7 @@ interface VesselSummary {
   details: VesselDetail[];
 }
 
-function buildSummaryData(): VesselSummary[] {
+function buildSummaryData(monthFilter?: string): VesselSummary[] {
   // Group by vessel name
   const vesselMap = new Map<
     string,
@@ -25,6 +25,11 @@ function buildSummaryData(): VesselSummary[] {
   >();
 
   for (const row of totalDataMock) {
+    if (monthFilter) {
+      const parts = row.loadingFieldDate?.split("-") || [];
+      const rowMonth = parts.length === 3 ? `${parts[1]}-${parts[2]}` : "";
+      if (rowMonth !== monthFilter) continue;
+    }
     const vesselName = row.vessel;
     // Estimasi Pemakaian = Ship Received KL - ROB (Pelni) KL
     // ROB (Pelni) = Before Discharge - After Discharge
@@ -84,8 +89,30 @@ const formatIndo = (val: number, decimals: number = 3) => {
   });
 };
 
+const availableMonths = Array.from(
+  new Set(
+    totalDataMock
+      .map((row) => {
+        const parts = row.loadingFieldDate?.split("-");
+        return parts?.length === 3 ? `${parts[1]}-${parts[2]}` : "";
+      })
+      .filter((m) => m !== "")
+  )
+);
+
+const formatMonthLabel = (m: string) => {
+  const [mon, yr] = m.split("-");
+  const monthsMap: Record<string, string> = {
+    Jan: "Januari", Feb: "Februari", Mar: "Maret", Apr: "April",
+    May: "Mei", Jun: "Juni", Jul: "Juli", Aug: "Agustus",
+    Sep: "September", Oct: "Oktober", Nov: "November", Dec: "Desember"
+  };
+  return `${monthsMap[mon] || mon} 20${yr}`;
+};
+
 export default function SummaryTab() {
-  const summaryData = buildSummaryData();
+  const [monthFilter, setMonthFilter] = useState("");
+  const summaryData = buildSummaryData(monthFilter);
   const [vesselFilter, setVesselFilter] = useState("");
   const [expandedVessels, setExpandedVessels] = useState<Set<string>>(
     new Set()
@@ -223,6 +250,26 @@ export default function SummaryTab() {
                 )}
               </div>
             </div>
+
+            <div className="flex flex-col gap-1.5 min-w-0">
+              <span className="text-sm font-medium text-gray-600">Bulan</span>
+              <select
+                value={monthFilter}
+                onChange={(e) => {
+                  setMonthFilter(e.target.value);
+                  setCurrentPage(1);
+                  setPageInput("1");
+                }}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white cursor-pointer h-[34px]"
+              >
+                <option value="">Semua Periode</option>
+                {availableMonths.map((m) => (
+                  <option key={m} value={m}>
+                    {formatMonthLabel(m)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Summary Cards */}
@@ -269,7 +316,9 @@ export default function SummaryTab() {
                   Periode
                 </span>
               </div>
-              <p className="text-lg font-bold text-gray-800 mt-1">Januari 2026</p>
+              <p className="text-lg font-bold text-gray-800 mt-1">
+                {monthFilter ? formatMonthLabel(monthFilter) : "Semua Periode"}
+              </p>
             </div>
           </div>
 

@@ -49,7 +49,7 @@ export default function LoginPage() {
       localStorage.setItem("username", user.username);
       localStorage.setItem("role", user.role);
       localStorage.setItem("imgUri", "");
-      router.push("/dashboard");
+      router.push("/module-selection");
     } else {
       setError(
         "Username atau password salah. Coba: admin / admin123 (Internal) atau client / client123 (Client)",

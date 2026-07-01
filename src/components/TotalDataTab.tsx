@@ -10,7 +10,8 @@ export default function TotalDataTab() {
   const [pageInput, setPageInput] = useState("1");
   const [filterDate, setFilterDate] = useState("");
   const [appliedFilterDate, setAppliedFilterDate] = useState("");
-  const [client, setClient] = useState("PT.PELNI(Persero)");
+  const [endDate, setEndDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
   const [vesselFilter, setVesselFilter] = useState("");
   const [bargeFilter, setBargeFilter] = useState("");
 
@@ -25,14 +26,26 @@ export default function TotalDataTab() {
       : true;
 
     let matchDate = true;
-    if (appliedFilterDate) {
+    if (appliedFilterDate || appliedEndDate) {
       const rowDate = parseDateString(row.loadingFieldDate);
-      const inputDate = new Date(appliedFilterDate);
       if (rowDate) {
-        matchDate =
-          rowDate.getFullYear() === inputDate.getFullYear() &&
-          rowDate.getMonth() === inputDate.getMonth() &&
-          rowDate.getDate() === inputDate.getDate();
+        const rowTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate()).getTime();
+        
+        let afterStart = true;
+        if (appliedFilterDate) {
+          const startDate = new Date(appliedFilterDate);
+          const startTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()).getTime();
+          afterStart = rowTime >= startTime;
+        }
+
+        let beforeEnd = true;
+        if (appliedEndDate) {
+          const endDateObj = new Date(appliedEndDate);
+          const endTime = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate()).getTime();
+          beforeEnd = rowTime <= endTime;
+        }
+
+        matchDate = afterStart && beforeEnd;
       } else {
         matchDate = false;
       }
@@ -79,6 +92,7 @@ export default function TotalDataTab() {
 
   const handleFilterDuration = () => {
     setAppliedFilterDate(filterDate);
+    setAppliedEndDate(endDate);
     setCurrentPage(1);
     setPageInput("1");
   };
@@ -204,28 +218,58 @@ export default function TotalDataTab() {
           {/* Filter Duration */}
           <div className="bg-gray-50 rounded-lg p-4 mb-4 md:mb-5 max-w-md">
             <p className="text-sm text-gray-500 mb-3">Filter Duration</p>
-            <div className="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Start Date */}
               <div className="flex-1">
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
+                <p className="text-xs text-gray-500 mb-1">Start Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              {/* End Date */}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">End Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
             <button
@@ -238,17 +282,6 @@ export default function TotalDataTab() {
 
           {/* Filter Controls Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 md:mb-6 items-end">
-            <div className="flex flex-col gap-1.5 min-w-0">
-              <span className="text-sm font-medium text-gray-600">Client</span>
-              <select
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-              >
-                <option value="PT.PELNI(Persero)">PT.PELNI(Persero)</option>
-              </select>
-            </div>
-
             <div className="flex flex-col gap-1.5 min-w-0">
               <span className="text-sm font-medium text-gray-600">Vessel</span>
               <div className="relative">
