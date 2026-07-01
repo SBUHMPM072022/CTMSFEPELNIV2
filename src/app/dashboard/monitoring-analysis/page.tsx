@@ -46,8 +46,10 @@ export default function MonitoringAnalysisPage() {
     <div className="flex min-h-screen bg-[#f5f6fa]">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <Header title="Dashboard — Monitoring & Analysis" userName="Admin" />
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} tabs={monitoringTabs} />
+        <div className="sticky top-0 z-20 bg-white shadow-sm md:shadow-none">
+          <Header title="Dashboard — Monitoring & Analysis" userName="Admin" showBorder={false} />
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} tabs={monitoringTabs} />
+        </div>
         <main className="flex-1 overflow-auto">{renderTabContent()}</main>
       </div>
     </div>

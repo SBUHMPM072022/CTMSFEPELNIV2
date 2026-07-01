@@ -108,7 +108,7 @@ const mockData: QualityRow[] = [
   // },
 ];
 
-export default function FormEntryROBPage() {
+export default function FormPelaksanaanKapalPage() {
   const router = useRouter();
   const [isSimpleTable, setIsSimpleTable] = useState(true);
   // Pagination State
@@ -139,23 +139,23 @@ export default function FormEntryROBPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header title="Form ROB" />
+        <Header title="Form Pelaksanaan Kapal" />
 
         <div className="p-4 sm:p-8 flex-1 overflow-x-hidden">
           {/* Activities Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 md:p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-bold text-gray-800 mb-4">
               Create New Activity
             </h2>
             <button
-              onClick={() => router.push("/admin/create-rob")}
+              onClick={() => router.push("/form-entry/form-pelaksanaan-kapal/create")}
               className="bg-[#0091d0] hover:bg-[#007bb0] text-white px-6 py-2 rounded-md text-sm font-medium transition-colors mb-8"
             >
               Create Data
             </button>
 
             <hr className="border-gray-100 mb-6" />
-            <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-6">
               <h2 className="text-lg font-bold text-gray-800">
                 List Activities
               </h2>
@@ -482,7 +482,7 @@ export default function FormEntryROBPage() {
                 <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
+                    className="h-4 w-4 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

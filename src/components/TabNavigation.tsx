@@ -26,7 +26,7 @@ export default function TabNavigation({
   tabs = defaultTabs,
 }: TabNavigationProps) {
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="bg-white border-b border-gray-200">
       <div className="overflow-x-auto no-scrollbar">
         <nav className="flex px-4 md:px-6 min-w-max">
           {tabs.map((tab) => (

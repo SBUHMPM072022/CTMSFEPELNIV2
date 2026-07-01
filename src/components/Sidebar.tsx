@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
@@ -93,6 +93,7 @@ const menuItems: MenuItem[] = [
     hasSubmenu: true,
     subMenuItems: [
       { label: "Form Jadwal Pengerjaan Kapal", href: "/form-entry/jadwal-pengerjaan-kapal" },
+      { label: "Form Pelaksanaan Kapal", href: "/form-entry/pelaksanaan-kapal" },
       { label: "Form Kapal", href: "/form-entry/kapal" },
     ],
   },
@@ -145,6 +146,18 @@ export default function Sidebar() {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
 
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [isMobileOpen]);
+
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("username");
@@ -179,7 +192,7 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`bg-[#1a2234] text-white min-h-screen h-screen fixed md:sticky top-0 left-0 z-50 flex flex-col transition-all duration-300 
+        className={`bg-[#1a2234] text-white min-h-screen h-screen fixed md:sticky top-0 left-0 z-50 flex flex-col transition-all duration-300 overflow-y-auto
           ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"} 
           ${isCollapsed ? "w-20" : "w-56"}`}
       >

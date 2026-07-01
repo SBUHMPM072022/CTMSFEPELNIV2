@@ -721,12 +721,12 @@ export default function FormEntryPage() {
 
         <div className="p-4 sm:p-8 flex-1 overflow-x-hidden">
           {/* Create New Activity Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 md:p-6 mb-8">
             <h2 className="text-lg font-bold text-gray-800 mb-6">
               Create New Activity
             </h2>
-            <div className="flex items-center gap-4">
-              <div className="relative w-64">
+            <div className="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3">
+              <div className="relative w-full md:w-64">
                 <select
                   value={bunkerSurvey}
                   onChange={(e) => {
@@ -742,7 +742,7 @@ export default function FormEntryPage() {
                   <option value="Discharge">Discharge</option>
                 </select>
               </div>
-              <div className="relative w-64">
+              <div className="relative w-full md:w-64">
                 <select
                   value={moda}
                   onChange={(e) => setModa(e.target.value)}
@@ -763,7 +763,7 @@ export default function FormEntryPage() {
               </div>
               <button
                 onClick={handleCreate}
-                className="bg-[#0091d0] hover:bg-[#007bb0] text-white px-6 py-2 rounded-md text-sm font-medium transition-colors"
+                className="bg-[#0091d0] hover:bg-[#007bb0] text-white px-6 py-2 rounded-md text-sm font-medium transition-colors w-full md:w-auto"
               >
                 {" "}
                 Create Data

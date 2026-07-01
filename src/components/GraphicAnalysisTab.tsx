@@ -366,6 +366,7 @@ const formatDate = (d: string) => {
 const groupAllTotalData = (
   vesselFilter: string = "",
   appliedFilterDate: string = "",
+  appliedEndDate: string = "",
 ) => {
   const groupedVessel = new Map<
     string,
@@ -388,18 +389,33 @@ const groupAllTotalData = (
     )
       return;
 
-    if (appliedFilterDate) {
+    let matchDate = true;
+    if (appliedFilterDate || appliedEndDate) {
       const rowDate = parseDateString(row.loadingFieldDate);
-      const inputDate = new Date(appliedFilterDate);
-      if (!rowDate) return;
-      if (
-        rowDate.getFullYear() !== inputDate.getFullYear() ||
-        rowDate.getMonth() !== inputDate.getMonth() ||
-        rowDate.getDate() !== inputDate.getDate()
-      ) {
-        return;
+      if (rowDate) {
+        const rowTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate()).getTime();
+        
+        let afterStart = true;
+        if (appliedFilterDate) {
+          const startDate = new Date(appliedFilterDate);
+          const startTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()).getTime();
+          afterStart = rowTime >= startTime;
+        }
+
+        let beforeEnd = true;
+        if (appliedEndDate) {
+          const endDateObj = new Date(appliedEndDate);
+          const endTime = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate()).getTime();
+          beforeEnd = rowTime <= endTime;
+        }
+
+        matchDate = afterStart && beforeEnd;
+      } else {
+        matchDate = false;
       }
     }
+    
+    if (!matchDate) return;
 
     const dateStr = formatDate(row.loadingFieldDate);
     const port = row.port?.toUpperCase() || "";
@@ -825,6 +841,8 @@ function LineChart({ title, data, isVesselLoading }: LineChartProps) {
 export default function GraphicAnalysisTab() {
   const [filterDate, setFilterDate] = useState("");
   const [appliedFilterDate, setAppliedFilterDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
   const [selectedModaSupply, setSelectedModaSupply] = useState("All");
   const [selectedModa, setSelectedModa] = useState("Discharge");
   const [vesselFilter, setVesselFilter] = useState("");
@@ -850,22 +868,35 @@ export default function GraphicAnalysisTab() {
         }))
     : vesselLoadingData;
 
-  if (appliedFilterDate) {
-    const inputDate = new Date(appliedFilterDate);
+  if (appliedFilterDate || appliedEndDate) {
     filteredVesselLoadingData = filteredVesselLoadingData.filter((p) => {
       const rowDate = parseDateString(p.date);
       if (!rowDate) return false;
-      return (
-        rowDate.getFullYear() === inputDate.getFullYear() &&
-        rowDate.getMonth() === inputDate.getMonth() &&
-        rowDate.getDate() === inputDate.getDate()
-      );
+      
+      const rowTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate()).getTime();
+        
+      let afterStart = true;
+      if (appliedFilterDate) {
+        const startDate = new Date(appliedFilterDate);
+        const startTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()).getTime();
+        afterStart = rowTime >= startTime;
+      }
+
+      let beforeEnd = true;
+      if (appliedEndDate) {
+        const endDateObj = new Date(appliedEndDate);
+        const endTime = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate()).getTime();
+        beforeEnd = rowTime <= endTime;
+      }
+
+      return afterStart && beforeEnd;
     });
   }
 
   const allGroupedDischargeData = groupAllTotalData(
     vesselFilter,
     appliedFilterDate,
+    appliedEndDate
   );
   const vesselDischargeData: DataPoint[] = allGroupedDischargeData.vessel;
   const truckDischargeData: DataPoint[] = allGroupedDischargeData.truck;
@@ -901,32 +932,65 @@ export default function GraphicAnalysisTab() {
           {/* Filter Duration */}
           <div className="bg-gray-50 rounded-lg p-4 mb-5 max-w-md">
             <p className="text-sm text-gray-500 mb-3">Filter Duration</p>
-            <div className="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Start Date */}
               <div className="flex-1">
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
+                <p className="text-xs text-gray-500 mb-1">Start Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              {/* End Date */}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">End Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
             <button
-              onClick={() => setAppliedFilterDate(filterDate)}
+              onClick={() => {
+                setAppliedFilterDate(filterDate);
+                setAppliedEndDate(endDate);
+              }}
               className="w-full mt-4 bg-gradient-to-r from-[#2d7dd2] to-[#45a3e5] text-white py-2 rounded-md text-sm font-medium hover:from-[#2570be] hover:to-[#3d93d4] transition-all shadow-md"
             >
               Apply Filter
@@ -934,9 +998,9 @@ export default function GraphicAnalysisTab() {
           </div>
 
           {/* Moda Supply Filter */}
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-sm text-gray-600 w-24">Moda Supply</span>
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+            <span className="text-sm text-gray-600 sm:w-24">Moda Supply</span>
+            <div className="flex flex-wrap gap-2">
               {modaSupplyTypes.map((type) => (
                 <button
                   key={type}

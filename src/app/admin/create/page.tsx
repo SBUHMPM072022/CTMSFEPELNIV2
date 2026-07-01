@@ -1,10 +1,13 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useFormik, FieldArray, FormikProvider } from "formik";
+import NumericInput from "@/components/NumericInput";
 import * as Yup from "yup";
 
 /* ──────────────── types ──────────────── */
@@ -185,8 +188,6 @@ export default function AdminCreatePage() {
   "w-full lg:max-w-[250px] px-3 py-[8px] border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-700";
   const qtyInput =
     "px-3 py-[6px] border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-700";
-  const selectCls =
-    "px-3 py-[6px] border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%22http://www.w3.org/2000/svg%22_fill=%22none%22_viewBox=%220_0_24_24%22_stroke=%22%236B7280%22%3E%3Cpath_stroke-linecap=%22round%22_stroke-linejoin=%22round%22_stroke-width=%222%22_d=%22M19_9l-7_7-7-7%22%3E%3C/path%3E%3C/svg%3E')] bg-[length:1rem] bg-[position:right_0.75rem_center] bg-no-repeat w-full";
   const lblCls = "text-[13px] font-medium text-gray-600 whitespace-nowrap w-full md:w-[300px] mb-1 md:mb-0";
   const subHeader = "flex flex-col md:flex-row md:items-center p-2 rounded bg-white";
 
@@ -294,49 +295,145 @@ export default function AdminCreatePage() {
             </div>
             <Row label="Kontrak">
               <div className="flex-1 w-full">
-                <input
+                <select
                   name="contract"
                   value={formik.values.contract}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={`${inputCls} ${formik.touched.contract && formik.errors.contract ? "border-red-500" : ""}`}
-                />
+                  className={`${inputCls} ${
+                    formik.touched.contract && formik.errors.contract
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                >
+                  <option value="">Select Contract</option>
+                  <option value="kontrak2026">TH.03.09-01/KP/2026</option>
+                  <option value="kontrak2026/27">TH.05.01-01/KP-RO1/2026</option>
+                </select>
+
                 {formik.touched.contract && formik.errors.contract && (
-                  <div className="text-red-500 text-[11px] mt-1">{formik.errors.contract}</div>
-                )}
-              </div>
-            </Row>
-            <Row label="SPK" bg="bg-white">
-              <div className="flex-1 w-full">
-                <input
-                  name="spk"
-                  value={formik.values.spk}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`${inputCls} ${formik.touched.spk && formik.errors.spk ? "border-red-500" : ""}`}
-                />
-                {formik.touched.spk && formik.errors.spk && (
-                  <div className="text-red-500 text-[11px] mt-1">{formik.errors.spk}</div>
+                  <div className="text-red-500 text-[11px] mt-1">
+                    {formik.errors.contract}
+                  </div>
                 )}
               </div>
             </Row>
 
+            {/* SPK */}
+            <Row label="SPK" bg="bg-white">
+              <div className="flex-1 w-full">
+                <input
+                  type="text"
+                  name="spk"
+                  value={formik.values.spk}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="Nomer SPK"
+                  className={`${inputCls} ${
+                    formik.touched.spk && formik.errors.spk
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                  style={{width : 300}}
+                />
+
+                {formik.touched.spk && formik.errors.spk && (
+                  <div className="text-red-500 text-[11px] mt-1">
+                    {formik.errors.spk}
+                  </div>
+                )}
+              </div>
+            </Row>
+            
             {/* Vessel */}
             <Row label="Vessel*">
-              <div className="flex-1 w-full">
+              <div className="w-[250px]">
                 <select
                   name="vessel"
                   value={formik.values.vessel}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={`${selectCls} ${formik.touched.vessel && formik.errors.vessel ? "border-red-500" : ""}`}
+                  className={`${inputCls} ${
+                    formik.touched.vessel && formik.errors.vessel
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 >
+                  {/* Penumpang */}
                   <option value="">Search Vessel</option>
-                  <option value="v1">KM PANGRANGO</option>
-                  <option value="v2">KM SANGIANG</option>
+                  {/* Penumpang */}
+                  <optgroup label=" -- Kapal Penumpang --"></optgroup>
+                  <option value="v1">KM Pangrango</option>
+                  <option value="v2">KM Sangiang</option>
+                  <option value="v3">KM Tatamailau</option>
+                  <option value="v4">KM Bukit Siguntang</option>
+                  <option value="v5">KM Lambelu</option>
+                  <option value="v6">KM Tilongkabila</option>
+                  <option value="v7">KM Bukit Raya</option>
+                  <option value="v8">KM Ciremai</option>
+                  <option value="v9">KM Dobonsolo</option>
+                  <option value="v10">KM Gunung Dempo</option>
+                  <option value="v11">KM Kelimutu</option>
+                  <option value="v12">KM Kelud</option>
+                  <option value="v13">KM Labobar</option>
+                  <option value="v14">KM Nggapulu</option>
+                  <option value="v15">KM Tidar</option>
+                  <option value="v16">KM Jetliner</option>
+                  <option value="v17">KM Sirimau</option>
+                  <option value="v18">KM Willis</option>
+                  <option value="v19">KM Binaiya</option>
+                  <option value="v20">KM Leuser</option>
+                  <option value="v21">KM Tatamailau</option>
+                  <option value="v22">KM Awu</option>
+                  <option value="v23">KM Dorolonda</option>
+                  <option value="v24">KM Egon</option>
+                  <option value="v25">KM Lawit</option>
+                  <option value="v26">KM Leuser</option>
+                  <option value="v27">KM Sinabung</option>
+                  {/* Perintis */}
+                   <optgroup label=" -- Kapal Perintis --"></optgroup>
+                  <option value="v28">KM Sabuk Nusantara 42</option>
+                  <option value="v29">KM Sabuk Nusantara 48</option>
+                  <option value="v30">KM Sabuk Nusantara 52</option>
+                  <option value="v31">KM Sabuk Nusantara 58</option>
+                  <option value="v32">KM Sabuk Nusantara 69</option>
+                  <option value="v33">KM Sabuk Nusantara 78</option>
+                  <option value="v34">KM Sabuk Nusantara 81</option>
+                  <option value="v35">KM Sabuk Nusantara 85</option>
+                  <option value="v36">KM Sabuk Nusantara 86</option>
+                  <option value="v37">KM Sabuk Nusantara 91</option>
+                  <option value="v38">KM Sabuk Nusantara 92</option>
+                  <option value="v39">KM Sabuk Nusantara 93</option>
+                  <option value="v40">KM Sabuk Nusantara 94</option>
+                  <option value="v41">KM Sabuk Nusantara 96</option>
+                  <option value="v42">KM Sabuk Nusantara 97</option>
+                  <option value="v43">KM Sabuk Nusantara 98</option>
+                  <option value="v44">KM Sabuk Nusantara 104</option>
+                  <option value="v45">KM Sabuk Nusantara 106</option>
+                  <option value="v46">KM Sabuk Nusantara 108</option>
+                  <option value="v47">KM Sabuk Nusantara 112</option>
+                  {/* Tol Laut */}
+                 {/* Logistik */}
+                  <optgroup label=" -- Kapal Tol Laut --"></optgroup>
+                  <option value="v48">KM Logistik Nusantara 01</option>
+                  <option value="v49">KM Logistik Nusantara 02</option>
+                  <option value="v50">KM Logistik Nusantara 4</option>
+                  <option value="v51">KM Logistik Nusantara 5</option>
+
+                  {/* Kendhaga */}
+                  <option value="v52">KM Kendhaga Nusantara 8</option>
+                  <option value="v53">KM Kendhaga Nusantara 11</option>
+
+                  {/* Cemara */}
+                  <option value="v54">KM Cemara Nusantara 1</option>
+
+
                 </select>
+
                 {formik.touched.vessel && formik.errors.vessel && (
-                  <div className="text-red-500 text-[11px] mt-1">{formik.errors.vessel}</div>
+                  <div className="text-red-500 text-[11px] mt-1">
+                    {formik.errors.vessel}
+                  </div>
                 )}
               </div>
             </Row>
@@ -346,16 +443,35 @@ export default function AdminCreatePage() {
               <label className="text-[13px] font-bold text-gray-700">Job Location*</label>
             </div>
             <Row label="Cabang">
-              <div className="flex-1 w-full">
+              <div className="w-[250px]">
                 <select
                   name="cabang"
                   value={formik.values.cabang}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={`${selectCls} ${formik.touched.cabang && formik.errors.cabang ? "border-red-500" : ""}`}
+                  className={`${inputCls} ${
+                    formik.touched.cabang && formik.errors.cabang
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 >
                   <option value="">Search Cabang Pelaksana</option>
-                  <option value="c1">Cabang 1</option>
+                  <option value="c1">Cabang Medan</option>
+                  <option value="c2">Cabang Padang</option>
+                  <option value="c3">Cabang Batam</option>
+                  <option value="c4">Cabang Bengkulu</option>
+                  <option value="c5">Cabang Jakarta</option>
+                  <option value="c6">Cabang Semarang</option>
+                  <option value="c7">Cabang Surabaya</option>
+                  <option value="c8">Cabang Denpasar</option>
+                  <option value="c9">Cabang Batulicin</option>
+                  <option value="c10">Cabang Makassar</option>
+                  <option value="c11"> Cabang Timika</option>
+                  <option value="c12">UP Ambon</option>
+                  <option value="c13">UP Bitung</option>
+                  <option value="c14">UP Kendari</option>
+                  <option value="c15">UP Palu</option>
+                  <option value="c16">UP Jayapura</option>
                 </select>
                 {formik.touched.cabang && formik.errors.cabang && (
                   <div className="text-red-500 text-[11px] mt-1">{formik.errors.cabang}</div>
@@ -363,49 +479,154 @@ export default function AdminCreatePage() {
               </div>
             </Row>
             <Row label="Loading Port/Terminal" bg="bg-white">
-              <div className="flex-1 w-full">
+              <div className="w-[250px]">
                 <select
                   name="loadingPort"
                   value={formik.values.loadingPort}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={`${selectCls} ${formik.touched.loadingPort && formik.errors.loadingPort ? "border-red-500" : ""}`}
+                  className={`${inputCls} ${
+                    formik.touched.loadingPort && formik.errors.loadingPort
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 >
                   <option value="">Search Loading Port</option>
-                  <option value="lp1">Port 1</option>
+                  <option value="lp1">Pelabuhan Tanjung Priok (Jakarta)</option>
+                  <option value="lp2">Pelabuhan Tanjung Emas (Semarang)</option>
+                  <option value="lp3">Pelabuhan Tanjung Perak (Surabaya)</option>
+                  <option value="lp4">Pelabuhan Soekarno-Hatta (Makassar)</option>
+                  <option value="lp5">Pelabuhan Bitung (Bitung)</option>
+                  <option value="lp6">Pelabuhan Yos Sudarso (Ambon)</option>
+                  <option value="lp7">Pelabuhan Tenau (Kupang)</option>
+                  <option value="lp8">Pelabuhan Murhum (Baubau)</option>
+                  <option value="lp9">Pelabuhan Sinabang (Simeulue)</option>
+                  <option value="lp10">Pelabuhan Teluk Bayur (Padang)</option>
+                  <option value="lp11">Pelabuhan Pulau Baai (Bengkulu)</option>
+                  <option value="lp12">Pelabuhan Sri Bintan Pura (Tanjung Pinang)</option>
+                  <option value="lp13">Pelabuhan Kijang (Bintan)</option>
+                  <option value="lp14">Pelabuhan Kotabaru (Kotabaru)</option>
+                  <option value="lp15">Pelabuhan Tahuna (Tahuna)</option>
+                  <option value="lp16">Pelabuhan Kwandang (Kwandang)</option>
+                  <option value="lp17">Pelabuhan Saumlaki (Saumlaki)</option>
+                  <option value="lp18">Pelabuhan Ahmad Yani (Ternate)</option>
+                  <option value="lp19">Pelabuhan Nusantara (Kendari)</option>
+                  <option value="lp20">Pelabuhan Jayapura (Jayapura)</option>
+                  <option value="lp21">Pelabuhan Biak (Biak)</option>
+                  <option value="lp22">Pelabuhan Merauke (Merauke)</option>
+                  <option value="lp23">Pelabuhan Manokwari (Manokwari)</option>
+                  <option value="lp24">Pelabuhan Sorong (Sorong)</option>
+                  <option value="lp25">Pelabuhan Meulaboh (Meulaboh)</option>
+                  <option value="lp26">Pelabuhan Pantoloan (Palu)</option>
+                  <option value="lp27">Pelabuhan Cirebon (Cirebon)</option>
+                  <option value="lp28">Pelabuhan Merak (Cilegon)</option>
+                  <option value="lp29">Pelabuhan Semayang (Balikpapan)</option>
+                  <option value="lp30">Pelabuhan Benoa (Bali)</option>
+                  <option value="lp31">Pelabuhan Tanjung Wangi (Banyuwangi)</option>
+                  <option value="lp32">Pelabuhan Lamongan Shorebase (Lamongan)</option>
                 </select>
                 {formik.touched.loadingPort && formik.errors.loadingPort && (
                   <div className="text-red-500 text-[11px] mt-1">{formik.errors.loadingPort}</div>
                 )}
               </div>
             </Row>
-            <Row label="Area">
-              <div className="flex-1 w-full">
-                <input
-                  name="area"
-                  value={formik.values.area}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={inputCls}
-                />
-              </div>
-            </Row>
+          <Row label="Area">
+            <div className="w-[250px]">
+              <select
+                name="area"
+                value={formik.values.area}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={inputCls}
+              >
+                <option value="">Search Area</option>
+                <option value="r1">Jakarta</option>
+                <option value="r2">Semarang</option>
+                <option value="r3">Surabaya</option>
+                <option value="r4">Makassar</option>
+                <option value="r5">Bitung</option>
+                <option value="r6">Ambon</option>
+                <option value="r7">Kupang</option>
+                <option value="r8">Bau-Bau</option>
+                <option value="r9">Sinabang/Simele</option>
+                <option value="r10">Teluk Bayur</option>
+                <option value="r11">Bengkulu</option>
+                <option value="r12">Tanjung Pinang</option>
+                <option value="r13">Kijang</option>
+                <option value="r14">Kotabaru</option>
+                <option value="r15">Tahuna</option>
+                <option value="r16">Kwandang</option>
+                <option value="r17">Saumlaki</option>
+                <option value="r18">Ternate</option>
+                <option value="r19">Kendari</option>
+                <option value="r20">Jayapura</option>
+                <option value="r21">Biak</option>
+                <option value="r22">Merauke</option>
+                <option value="r23">Manokwari</option>
+                <option value="r24">Sorong</option>
+                <option value="r25">Meulaboh</option>
+                <option value="r26">Palu</option>
+                <option value="r27">Cirebon</option>
+                <option value="r28">Cilegon</option>
+                <option value="r29">Balikpapan</option>
+                <option value="r30">Benoa</option>
+                <option value="r31">Banyuwangi</option>
+                <option value="r32">Lamongan</option>
+              </select>
+            </div>
+          </Row>
 
             {/* Lokasi */}
             <div className={subHeader}>
               <label className="text-[13px] font-bold text-gray-700">Lokasi</label>
             </div>
             <Row label="Terminal Tujuan">
-              <div className="flex-1 w-full">
+              <div className="w-[250px]">
                 <select
                   name="terminalTujuan"
                   value={formik.values.terminalTujuan}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={selectCls}
+                  className={`${inputCls} ${
+                    formik.touched.terminalTujuan && formik.errors.terminalTujuan
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 >
                   <option value="">Search Terminal Tujuan</option>
-                  <option value="tt1">Terminal 1</option>
+                  {/* Pelabuhan */}
+                  <option value="tt1">Pelabuhan Tanjung Priok (Jakarta)</option>
+                  <option value="tt2">Pelabuhan Tanjung Emas (Semarang)</option>
+                  <option value="tt3">Pelabuhan Tanjung Perak (Surabaya)</option>
+                  <option value="tt4">Pelabuhan Soekarno-Hatta (Makassar)</option>
+                  <option value="tt5">Pelabuhan Bitung (Bitung)</option>
+                  <option value="tt6">Pelabuhan Yos Sudarso (Ambon)</option>
+                  <option value="tt7">Pelabuhan Tenau (Kupang)</option>
+                  <option value="tt8">Pelabuhan Murhum (Baubau)</option>
+                  <option value="tt9">Pelabuhan Sinabang (Simeulue)</option>
+                  <option value="tt10">Pelabuhan Teluk Bayur (Padang)</option>
+                  <option value="tt11">Pelabuhan Pulau Baai (Bengkulu)</option>
+                  <option value="tt12">Pelabuhan Sri Bintan Pura (Tanjung Pinang)</option>
+                  <option value="tt13">Pelabuhan Kijang (Bintan)</option>
+                  <option value="tt14">Pelabuhan Kotabaru (Kotabaru)</option>
+                  <option value="tt15">Pelabuhan Tahuna (Tahuna)</option>
+                  <option value="tt16">Pelabuhan Kwandang (Kwandang)</option>
+                  <option value="tt17">Pelabuhan Saumlaki (Saumlaki)</option>
+                  <option value="tt18">Pelabuhan Ahmad Yani (Ternate)</option>
+                  <option value="tt19">Pelabuhan Nusantara (Kendari)</option>
+                  <option value="tt20">Pelabuhan Jayapura (Jayapura)</option>
+                  <option value="tt21">Pelabuhan Biak (Biak)</option>
+                  <option value="tt22">Pelabuhan Merauke (Merauke)</option>
+                  <option value="tt23">Pelabuhan Manokwari (Manokwari)</option>
+                  <option value="tt24">Pelabuhan Sorong (Sorong)</option>
+                  <option value="tt25">Pelabuhan Meulaboh (Meulaboh)</option>
+                  <option value="tt26">Pelabuhan Pantoloan (Palu)</option>
+                  <option value="tt27">Pelabuhan Cirebon (Cirebon)</option>
+                  <option value="tt28">Pelabuhan Merak (Cilegon)</option>
+                  <option value="tt29">Pelabuhan Semayang (Balikpapan)</option>
+                  <option value="tt30">Pelabuhan Benoa (Bali)</option>
+                  <option value="tt31">Pelabuhan Tanjung Wangi (Banyuwangi)</option>
+                  <option value="tt32">Pelabuhan Lamongan Shorebase (Lamongan)</option>
                 </select>
               </div>
             </Row>
@@ -432,19 +653,28 @@ export default function AdminCreatePage() {
               </div>
             </Row>
 
-            {/* Product / Commodity */}
+           {/* Product / Commodity */}
             <Row label="Product / Commodity*" bg="bg-white">
               <div className="flex-1 w-full">
-                <input
+                <select
                   name="product"
                   value={formik.values.product}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder="Select Cargo"
-                  className={`${inputCls} ${formik.touched.product && formik.errors.product ? "border-red-500" : ""}`}
-                />
+                  className={`${inputCls} ${
+                    formik.touched.product && formik.errors.product
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                >
+                  <option value="">Select Cargo</option>
+                  <option value="B40">B40</option>
+                </select>
+
                 {formik.touched.product && formik.errors.product && (
-                  <div className="text-red-500 text-[11px] mt-1">{formik.errors.product}</div>
+                  <div className="text-red-500 text-[11px] mt-1">
+                    {formik.errors.product}
+                  </div>
                 )}
               </div>
             </Row>
@@ -467,61 +697,74 @@ export default function AdminCreatePage() {
             </Row>
 
             {/* Surveyor In Charge */}
-            <div className="flex flex-col md:flex-row items-start p-2 rounded bg-white">
-              <label className="text-[13px] font-bold text-gray-700 whitespace-nowrap w-full md:w-[300px] mb-2 md:mb-0" style={{ paddingTop: 8 }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] items-start gap-3 p-2 rounded bg-white">
+              <label className="text-[13px] font-medium text-gray-600">
                 Surveyor In Charge<span className="text-red-500">*</span>
               </label>
-              <div className="flex-1 w-full space-y-3">
+
+              <div className="w-full space-y-3">
                 <FieldArray name="surveyors">
                   {({ push, remove }) => (
                     <>
                       {formik.values.surveyors.map((s, idx) => (
                         <div key={idx} className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col lg:flex-row gap-2">
+
+                            {/* LEVEL */}
                             <select
                               name={`surveyors.${idx}.level`}
                               value={s.level}
                               onChange={formik.handleChange}
                               onBlur={formik.handleBlur}
-                              className={`${selectCls} w-full ${formik.touched.surveyors?.[idx]?.level && (formik.errors.surveyors as Record<string, string>[])?.[idx]?.level ? "border-red-500" : ""}`}
+                              className={`${inputCls} ${
+                              formik.touched.surveyors && formik.errors.surveyors
+                                ? "border-red-500"
+                                : ""
+                            }`}
                             >
-                              <option value="">--Choose Level--</option>
+                              <option value="">Surveyor Cabang/Pusat</option>
                               <option value="pusat">Pusat</option>
                               <option value="cabang">Cabang</option>
                             </select>
+
+                            {/* NAME */}
                             <input
                               name={`surveyors.${idx}.name`}
                               value={s.name}
                               onChange={formik.handleChange}
                               onBlur={formik.handleBlur}
-                              className={`${inputCls} w-full ${formik.touched.surveyors?.[idx]?.name && (formik.errors.surveyors as Record<string, string>[])?.[idx]?.name ? "border-red-500" : ""}`}
+                              className={`${inputCls} ${
+                                formik.touched.surveyors?.[idx]?.name &&
+                                (formik.errors.surveyors as Record<string, string>[])?.[idx]?.name
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                             />
-                            <button
-                              type="button"
-                              onClick={() => push({ level: "", name: "" })}
-                              className="text-blue-500 hover:text-blue-600 text-lg leading-none font-bold"
-                              title="Add"
-                            >
-                              +
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (formik.values.surveyors.length > 1) {
-                                  remove(idx);
-                                }
-                              }}
-                              className="text-red-500 hover:text-red-600 text-lg leading-none"
-                              title="Remove"
-                            >
-                              🗑
-                            </button>
-                          </div>
-                          {formik.touched.surveyors?.[idx] && (formik.errors.surveyors as Record<string, string>[])?.[idx] && (
-                            <div className="text-red-500 text-[11px]">
-                              {(formik.errors.surveyors as Record<string, string>[])[idx].level || (formik.errors.surveyors as Record<string, string>[])[idx].name}
+
+                            {/* BUTTONS */}
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => push({ level: "", name: "" })}
+                                className="text-blue-500 hover:text-blue-600 text-lg leading-none font-bold"
+                              >
+                                +
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (formik.values.surveyors.length > 1) {
+                                    remove(idx);
+                                  }
+                                }}
+                                className="text-red-500 hover:text-red-600 text-lg leading-none"
+                              >
+                                🗑
+                              </button>
                             </div>
-                          )}
+
+                          </div>
                         </div>
                       ))}
                     </>
@@ -535,7 +778,7 @@ export default function AdminCreatePage() {
           <div className={sectionHeader}>Timelog</div>
           <div className={`${sectionBody} space-y-1`}>
             {/* Header Row */}
-            <div className="flex items-center mb-1 px-2">
+            <div className="hidden md:flex items-center mb-1 px-2">
               <div className="w-[300px] text-[12px] font-semibold text-gray-600">Activities</div>
               <div className="w-[160px] text-[12px] font-semibold text-gray-600">Time</div>
               <div className="w-[180px] text-[12px] font-semibold text-gray-600">Date</div>
@@ -543,52 +786,51 @@ export default function AdminCreatePage() {
             </div>
 
             {formik.values.timingRows.map((row, idx) => (
-              <div key={idx} className={`flex items-center p-2 rounded gap-2 ${idx % 2 === 0 ? "bg-blue-50/50" : ""}`}>
-                <div className="w-[300px] flex items-center gap-2">
-                  <span className="text-gray-500 text-[11px] w-4">{row.no}.</span>
-                  <span className="text-gray-800 font-medium text-[13px]">{row.activities}</span>
+              <div key={idx} className={`flex flex-col md:flex-row md:items-center p-3 md:p-2 rounded gap-3 md:gap-2 mb-2 md:mb-0 border md:border-none border-gray-200 ${idx % 2 === 0 ? "bg-blue-50/50" : "bg-white md:bg-transparent"}`}>
+                <div className="w-full md:w-[300px] flex items-start md:items-center gap-2">
+                  <span className="text-gray-500 text-[11px] w-4 mt-0.5 md:mt-0">{row.no}.</span>
+                  <div className="flex flex-col w-full md:w-auto">
+                    <span className="md:hidden text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Activities</span>
+                    <span className="text-gray-800 font-medium text-[13px]">{row.activities}</span>
+                  </div>
                 </div>
                 
                 {/* Time */}
-                <div className="w-[160px] flex items-center gap-1">
-                  <input
-                    type="time"
-                    name={`timingRows.${idx}.time`}
-                    value={row.time}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="px-2 py-1 border border-gray-300 rounded text-xs w-[80px] focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="hh:mm"
-                  />
-                  <button type="button" className="p-1 bg-blue-500 text-white rounded text-[10px] w-6 h-6 flex items-center justify-center">
-                    📄
-                  </button>
-                  <button type="button" className="p-1 bg-amber-500 text-white rounded text-[10px] w-6 h-6 flex items-center justify-center">
-                    📋
-                  </button>
+                <div className="w-full md:w-[160px] flex flex-col md:flex-row md:items-center gap-1">
+                  <span className="md:hidden text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Time</span>
+                  <div className="flex items-center gap-1 w-full md:w-auto">
+                    <input
+                      type="time"
+                      name={`timingRows.${idx}.time`}
+                      value={row.time}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="px-2 py-1 border border-gray-300 rounded text-xs w-full md:w-[80px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="hh:mm"
+                    />
+                  </div>
                 </div>
 
                 {/* Date */}
-                <div className="w-[180px] flex items-center gap-1">
-                  <input
-                    type="date"
-                    name={`timingRows.${idx}.date`}
-                    value={row.date}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="px-2 py-1 border border-gray-300 rounded text-xs w-[105px] focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="dd/mm/yyyy"
-                  />
-                  <button type="button" className="p-1 bg-blue-500 text-white rounded text-[10px] w-6 h-6 flex items-center justify-center">
-                    📄
-                  </button>
-                  <button type="button" className="p-1 bg-amber-500 text-white rounded text-[10px] w-6 h-6 flex items-center justify-center">
-                    📋
-                  </button>
+                <div className="w-full md:w-[180px] flex flex-col md:flex-row md:items-center gap-1">
+                  <span className="md:hidden text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Date</span>
+                  <div className="flex items-center gap-1 w-full md:w-auto">
+                    <input
+                      type="date"
+                      name={`timingRows.${idx}.date`}
+                      value={row.date}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="px-2 py-1 border border-gray-300 rounded text-xs w-full md:w-[105px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="dd/mm/yyyy"
+                    />
+
+                  </div>
                 </div>
 
                 {/* Remarks */}
-                <div className="flex-1">
+                <div className="flex-1 w-full md:w-auto flex flex-col md:flex-row md:items-center gap-1">
+                  <span className="md:hidden text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Remarks/Delay/Etc</span>
                   <input
                     type="text"
                     name={`timingRows.${idx}.remarks`}
@@ -616,7 +858,7 @@ export default function AdminCreatePage() {
               </div>
             </div>
             <Row label="BL Quantity">
-              <input
+              <NumericInput
                 name="blQuantity"
                 value={formik.values.blQuantity}
                 onChange={formik.handleChange}
@@ -695,7 +937,7 @@ export default function AdminCreatePage() {
               </div>
             </div>
             <Row label="Onboard Quantity (OBQ)">
-              <input
+              <NumericInput
                 name="obq"
                 value={formik.values.obq}
                 onChange={formik.handleChange}
@@ -704,7 +946,7 @@ export default function AdminCreatePage() {
               />
             </Row>
             <Row label="Ship's Figure After Loading (SFAL)" bg="bg-white">
-              <input
+              <NumericInput
                 name="sfal"
                 value={formik.values.sfal}
                 onChange={formik.handleChange}
@@ -713,7 +955,7 @@ export default function AdminCreatePage() {
               />
             </Row>
             <Row label="Free Water After Loading">
-              <input
+              <NumericInput
                 name="freeWaterAfterLoading"
                 value={formik.values.freeWaterAfterLoading}
                 onChange={formik.handleChange}
@@ -722,7 +964,7 @@ export default function AdminCreatePage() {
               />
             </Row>
             <Row label="Ship's Quantity Loaded" bg="bg-white">
-              <input
+              <NumericInput
                 name="shipsQuantityLoaded"
                 value={formik.values.shipsQuantityLoaded}
                 onChange={formik.handleChange}
@@ -758,6 +1000,7 @@ export default function AdminCreatePage() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   className={`${inputCls} ${qtyInput} w-full bg-gray-100`}
+                  style={{width:150}}
                   readOnly
                 />
                 <span className="text-[13px] text-gray-600">%</span>

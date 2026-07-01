@@ -44,7 +44,7 @@ export default function FilterSection({ onFilterApply }: FilterSectionProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"

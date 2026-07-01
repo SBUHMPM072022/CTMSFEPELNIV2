@@ -215,31 +215,43 @@ const mockData: QualityDetailData[] = [
   },
 ];
 
-const clients = ["PT.PELNI(Persero)"];
-
 export default function QualityDetailTab() {
   const [filterDate, setFilterDate] = useState("");
   const [appliedFilterDate, setAppliedFilterDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState("1");
 
   const filteredData = useMemo(() => {
     let data = mockData;
-    if (appliedFilterDate) {
-      const inputDate = new Date(appliedFilterDate);
+    if (appliedFilterDate || appliedEndDate) {
       data = data.filter((row) => {
         const rowDate = parseDateString(row.workDate);
         if (!rowDate) return false;
-        return (
-          rowDate.getFullYear() === inputDate.getFullYear() &&
-          rowDate.getMonth() === inputDate.getMonth() &&
-          rowDate.getDate() === inputDate.getDate()
-        );
+        
+        const rowTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate()).getTime();
+        
+        let afterStart = true;
+        if (appliedFilterDate) {
+          const startDate = new Date(appliedFilterDate);
+          const startTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()).getTime();
+          afterStart = rowTime >= startTime;
+        }
+
+        let beforeEnd = true;
+        if (appliedEndDate) {
+          const endDateObj = new Date(appliedEndDate);
+          const endTime = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate()).getTime();
+          beforeEnd = rowTime <= endTime;
+        }
+
+        return afterStart && beforeEnd;
       });
     }
     return data;
-  }, [appliedFilterDate]);
+  }, [appliedFilterDate, appliedEndDate]);
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -266,8 +278,6 @@ export default function QualityDetailTab() {
     setCurrentPage(1);
     setPageInput("1");
   };
-
-  const [client, setClient] = useState("PT.PLN (Persero)");
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
 
   const toggleRow = (id: string) => {
@@ -291,10 +301,10 @@ export default function QualityDetailTab() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-2 md:p-4 lg:p-6">
       <div className="bg-white rounded-lg shadow-sm">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100">
+        <div className="p-3 md:p-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -316,86 +326,101 @@ export default function QualityDetailTab() {
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="p-3 md:p-5">
           {/* Filter Duration */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-5 max-w-md">
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-5 max-w-md">
             <p className="text-sm text-gray-500 mb-3">Filter Duration</p>
-            <div className="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Start Date */}
               <div className="flex-1">
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
+                <p className="text-xs text-gray-500 mb-1">Start Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              {/* End Date */}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">End Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
             <button
-              onClick={() => setAppliedFilterDate(filterDate)}
+              onClick={() => {
+                setAppliedFilterDate(filterDate);
+                setAppliedEndDate(endDate);
+              }}
               className="w-full mt-4 bg-gradient-to-r from-[#2d7dd2] to-[#45a3e5] text-white py-2 rounded-md text-sm font-medium hover:from-[#2570be] hover:to-[#3d93d4] transition-all shadow-md"
             >
               Apply Filter
             </button>
           </div>
 
-          {/* Client Filter */}
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-6">
-            <div className="flex flex-col gap-1.5 w-full sm:w-auto min-w-[200px]">
-              <span className="text-sm font-medium text-gray-600">Client</span>
-              <select
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-              >
-                {clients.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
           {/* Data Table */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 rounded-lg overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="w-10 px-3 py-3"></th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Id
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Work Date
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Date of Analysis
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Vessel
                   </th>
 
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Product
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Result
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Download Data
                   </th>
                 </tr>
@@ -615,7 +640,7 @@ export default function QualityDetailTab() {
           </div>
 
           {/* Pagination */}
-          <div className="mt-6 flex flex-col lg:flex-row items-center justify-between border-t border-gray-100 pt-4 gap-6">
+          <div className="mt-4 md:mt-6 flex flex-col lg:flex-row items-center justify-between border-t border-gray-100 pt-4 gap-4 md:gap-6">
             <div className="flex items-center gap-4 order-2 lg:order-1">
               <button
                 onClick={() => goToPage(currentPage - 1)}

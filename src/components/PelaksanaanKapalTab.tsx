@@ -102,11 +102,11 @@ export default function PelaksanaanKapalTab() {
   const [vesselFilter, setVesselFilter] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [appliedFilterDate, setAppliedFilterDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit" | "info">("create");
-  const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [selectedDocType, setSelectedDocType] = useState<DocType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
@@ -127,8 +127,16 @@ export default function PelaksanaanKapalTab() {
       ? row.namaKapal.toLowerCase().includes(vesselFilter.toLowerCase())
       : true;
     let matchDate = true;
-    if (appliedFilterDate) {
-      matchDate = row.tanggal === appliedFilterDate;
+    if (appliedFilterDate || appliedEndDate) {
+      let afterStart = true;
+      if (appliedFilterDate) {
+         afterStart = row.tanggal >= appliedFilterDate;
+      }
+      let beforeEnd = true;
+      if (appliedEndDate) {
+         beforeEnd = row.tanggal <= appliedEndDate;
+      }
+      matchDate = afterStart && beforeEnd;
     }
     return matchVessel && matchDate;
   });
@@ -144,10 +152,8 @@ export default function PelaksanaanKapalTab() {
     setPageInput(String(p));
   };
 
-  const openModal = (rowNo: number, docType: DocType, mode: "create" | "edit" | "info") => {
-    setSelectedRow(rowNo);
+  const openModal = (rowNo: number, docType: DocType) => {
     setSelectedDocType(docType);
-    setModalMode(mode);
     
     const row = data.find(r => r.no === rowNo);
     let currentData = {};
@@ -162,32 +168,6 @@ export default function PelaksanaanKapalTab() {
     }
     setFormData(currentData);
     setIsModalOpen(true);
-  };
-
-  const handleFormSubmit = () => {
-    if (selectedRow !== null && selectedDocType) {
-      setData((prev) =>
-        prev.map((row) => {
-          if (row.no !== selectedRow) return row;
-          const updatedRow = { ...row, [selectedDocType]: "Sudah Upload" as const };
-          if (selectedDocType === "spStatus") {
-            updatedRow.spData = formData;
-            updatedRow.spFileName = formData.fileName;
-          } else if (selectedDocType === "quotationStatus") {
-            updatedRow.quotationData = formData;
-            updatedRow.quotationFileName = formData.fileName;
-          } else if (selectedDocType === "loadingOrderStatus") {
-            updatedRow.loadingOrderData = formData;
-            updatedRow.loadingOrderFileName = formData.fileName;
-          }
-          return updatedRow;
-        })
-      );
-    }
-    setIsModalOpen(false);
-    setSelectedRow(null);
-    setSelectedDocType(null);
-    setFormData({});
   };
 
   const getDocName = (docType: DocType | null) => {
@@ -227,39 +207,17 @@ export default function PelaksanaanKapalTab() {
               isUploaded ? "border-green-200 bg-green-100/50" : "border-red-200 bg-red-100/50"
             }`}
           >
-            {!isUploaded && (
-              <button
-                onClick={() => openModal(rowNo, docType, "create")}
-                className="p-1 hover:bg-white/60 rounded transition-colors text-red-600 hover:text-red-800"
-                title="Create"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            )}
-            {isUploaded && (
-              <>
-                <button
-                  onClick={() => openModal(rowNo, docType, "info")}
-                  className="p-1 hover:bg-white/60 rounded transition-colors text-green-600 hover:text-green-800"
-                  title="Info"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => openModal(rowNo, docType, "edit")}
-                  className="p-1 hover:bg-white/60 rounded transition-colors text-green-600 hover:text-green-800"
-                  title="Edit"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => openModal(rowNo, docType)}
+              className={`p-1 hover:bg-white/60 rounded transition-colors ${
+                isUploaded ? "text-green-600 hover:text-green-800" : "text-red-600 hover:text-red-800"
+              }`}
+              title="View Information"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -267,29 +225,29 @@ export default function PelaksanaanKapalTab() {
   };
 
   const renderFormInputs = () => {
-    const isReadOnly = modalMode === "info";
-    const inputClass = `w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm ${isReadOnly ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white text-gray-800'}`;
+    const isEmpty = !formData || Object.keys(formData).length === 0;
+    
+    if (isEmpty) {
+      return (
+        <div className="py-8 text-center flex flex-col items-center justify-center">
+          <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          <p className="text-gray-500 font-medium text-sm">No information available.</p>
+        </div>
+      );
+    }
 
     const renderFileDisplay = () => {
-      if (!formData.fileName) return null;
-      if (isReadOnly) {
-        return (
-          <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-hidden mr-3">
-              <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
-              <span className="text-sm font-semibold text-gray-800 truncate">{formData.fileName}</span>
-            </div>
-            <button onClick={() => alert(`Downloading: ${formData.fileName}`)} className="text-xs bg-white border border-gray-300 px-3 py-1.5 rounded shadow-sm hover:bg-gray-50 font-semibold text-gray-700 flex items-center gap-1.5 transition-colors flex-shrink-0">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Unduh
-            </button>
-          </div>
-        );
-      }
+      if (!formData.fileName) return <p className="text-sm font-medium text-gray-800">-</p>;
       return (
-        <p className="text-sm mt-2 text-[#0091d0] flex items-center gap-2">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" /></svg> 
-          {formData.fileName}
-        </p>
+        <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2 overflow-hidden mr-3">
+            <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
+            <span className="text-sm font-semibold text-gray-800 truncate">{formData.fileName}</span>
+          </div>
+          <button onClick={() => alert(`Downloading: ${formData.fileName}`)} className="text-xs bg-white border border-gray-300 px-3 py-1.5 rounded shadow-sm hover:bg-gray-50 font-semibold text-gray-700 flex items-center gap-1.5 transition-colors flex-shrink-0">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Unduh
+          </button>
+        </div>
       );
     };
     
@@ -297,16 +255,19 @@ export default function PelaksanaanKapalTab() {
        return (
          <div className="space-y-4">
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Tanggal</label>
-             <input type="date" value={formData.tanggal || ''} onChange={(e) => setFormData({...formData, tanggal: e.target.value})} disabled={isReadOnly} className={inputClass} />
+             <label className="block text-xs font-semibold text-gray-500 mb-1">SP Number</label>
+             <p className="text-sm font-medium text-gray-800">{formData.spNumber || '-'}</p>
            </div>
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Waktu</label>
-             <input type="time" value={formData.waktu || ''} onChange={(e) => setFormData({...formData, waktu: e.target.value})} disabled={isReadOnly} className={inputClass} />
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Tanggal</label>
+             <p className="text-sm font-medium text-gray-800">{formData.tanggal || '-'}</p>
            </div>
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Upload Folder/File</label>
-             {!isReadOnly && <input type="file" onChange={(e) => e.target.files && setFormData({...formData, fileName: e.target.files[0].name})} className="text-sm w-full text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />}
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Waktu</label>
+             <p className="text-sm font-medium text-gray-800">{formData.waktu || '-'}</p>
+           </div>
+           <div>
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Uploaded Document</label>
              {renderFileDisplay()}
            </div>
          </div>
@@ -316,16 +277,12 @@ export default function PelaksanaanKapalTab() {
        return (
          <div className="space-y-4">
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Verification</label>
-             <select value={formData.verification || ''} onChange={(e) => setFormData({...formData, verification: e.target.value})} disabled={isReadOnly} className={inputClass}>
-                <option value="">-- Pilih Status --</option>
-                <option value="Verified">Verified</option>
-                <option value="Unverified">Unverified</option>
-             </select>
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Verification Status</label>
+             <p className="text-sm font-medium text-gray-800">{formData.verification || '-'}</p>
            </div>
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Comment</label>
-             <textarea value={formData.comment || ''} onChange={(e) => setFormData({...formData, comment: e.target.value})} disabled={isReadOnly} className={inputClass} rows={3} placeholder="Tuliskan komentar..."></textarea>
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Comment</label>
+             <p className="text-sm font-medium text-gray-800">{formData.comment || '-'}</p>
            </div>
          </div>
        );
@@ -334,12 +291,11 @@ export default function PelaksanaanKapalTab() {
        return (
          <div className="space-y-4">
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Produk</label>
-             <input type="text" value={formData.produk || ''} onChange={(e) => setFormData({...formData, produk: e.target.value})} disabled={isReadOnly} className={inputClass} placeholder="Masukkan nama produk" />
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Product</label>
+             <p className="text-sm font-medium text-gray-800">{formData.produk || '-'}</p>
            </div>
            <div>
-             <label className="block text-xs font-semibold text-gray-700 mb-1">Upload Berita Acara dari Cabang</label>
-             {!isReadOnly && <input type="file" onChange={(e) => e.target.files && setFormData({...formData, fileName: e.target.files[0].name})} className="text-sm w-full text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />}
+             <label className="block text-xs font-semibold text-gray-500 mb-1">Uploaded Berita Acara Cabang</label>
              {renderFileDisplay()}
            </div>
          </div>
@@ -365,13 +321,61 @@ export default function PelaksanaanKapalTab() {
           {/* Filter Duration */}
           <div className="bg-gray-50 rounded-lg p-4 mb-5 max-w-md">
             <p className="text-sm text-gray-500 mb-3">Filter Duration</p>
-            <div className="flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Start Date */}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">Start Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              {/* End Date */}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">End Date</p>
+                <div className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
             </div>
-            <button onClick={() => { setAppliedFilterDate(filterDate); setCurrentPage(1); setPageInput("1"); }} className="w-full mt-4 bg-gradient-to-r from-[#2d7dd2] to-[#45a3e5] text-white py-2 rounded-md text-sm font-medium hover:from-[#2570be] hover:to-[#3d93d4] transition-all shadow-md">
+            <button onClick={() => { setAppliedFilterDate(filterDate); setAppliedEndDate(endDate); setCurrentPage(1); setPageInput("1"); }} className="w-full mt-4 bg-gradient-to-r from-[#2d7dd2] to-[#45a3e5] text-white py-2 rounded-md text-sm font-medium hover:from-[#2570be] hover:to-[#3d93d4] transition-all shadow-md">
               Apply Filter
             </button>
           </div>
@@ -486,7 +490,7 @@ export default function PelaksanaanKapalTab() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 transform transition-all">
             <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-3">
               <h3 className="text-lg font-bold text-gray-800 capitalize">
-                {modalMode} {getDocName(selectedDocType)}
+                Information {getDocName(selectedDocType)}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -504,18 +508,10 @@ export default function PelaksanaanKapalTab() {
               <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 bg-[#0091d0] text-white text-sm font-medium rounded-lg hover:bg-[#007bb0] transition-colors"
                 >
-                  {modalMode === "info" ? "Close" : "Cancel"}
+                  Close
                 </button>
-                {modalMode !== "info" && (
-                  <button
-                    onClick={handleFormSubmit}
-                    className="px-4 py-2 bg-[#0091d0] text-white text-sm font-medium rounded-lg hover:bg-[#007bb0] transition-colors"
-                  >
-                    {modalMode === "create" ? "Submit" : "Save Changes"}
-                  </button>
-                )}
               </div>
             </div>
           </div>
