@@ -84,7 +84,7 @@ export default function LoginPage() {
               Welcome Back 👋
             </h1>
             <p className="text-sm text-gray-500 mb-6">
-              Login ke Marine Bunker Monitoring System
+              Login ke Fuel Management and Optimization System (SCI-FMOS)
             </p>
 
             <form onSubmit={handleSubmit} noValidate>
@@ -269,13 +269,13 @@ export default function LoginPage() {
           {/* Title Text */}
           <div className="text-left max-w-lg">
             <h2 className="text-5xl font-extrabold text-white leading-tight mb-2">
-              Marine Bunker
+              Fuel Management and Optimization System
             </h2>
             <p className="text-2xl font-semibold text-white/90 mb-4">
-              Monitoring System
+              SCI-FMOS
             </p>
             <p className="text-base text-white/60 leading-relaxed max-w-sm">
-              Sistem Monitoring Bunker Kapal Produk BBM Secara Realtime
+              Platform Terintegrasi Berbasis IOT untuk Monitoring, Analisis, dan Optimasi Pengelola Bahan Bakar
             </p>
           </div>
         </div>
